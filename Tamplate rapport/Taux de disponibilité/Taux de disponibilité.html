@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .page-break { page-break-after: always; }
+        }
+        /* Custom Donut Chart CSS */
+        .donut-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+        .donut-ring {
+            stroke-dasharray: 100 0;
+            stroke-dashoffset: 0;
+            transition: stroke-dasharray 1s ease;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#031427",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "surface-container": "#eceef1",
+                        "tertiary-container": "#19293d",
+                        "primary-fixed-dim": "#b9c6eb",
+                        "inverse-on-surface": "#eff1f4",
+                        "surface-bright": "#f7f9fc",
+                        "surface": "#f7f9fc",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fc",
+                        "surface-container-high": "#e6e8eb",
+                        "surface-tint": "#515e7e",
+                        "on-secondary-fixed": "#001a42",
+                        "on-primary-fixed-variant": "#3a4665",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "surface-dim": "#d8dadd",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-primary-fixed": "#0d1b37",
+                        "secondary": "#0058be",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-secondary-container": "#fefcff",
+                        "outline-variant": "#c5c6ce",
+                        "on-tertiary-container": "#8090a8",
+                        "inverse-surface": "#2d3133",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#828eb1",
+                        "surface-variant": "#e0e3e6",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b9c6eb",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e0e3e6",
+                        "secondary-container": "#2170e4",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-container-low": "#f2f4f7",
+                        "on-surface": "#191c1e",
+                        "outline": "#75777e",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "primary-container": "#1a2744",
+                        "primary": "#04122e",
+                        "success-label": "#1a8a3d",
+                        "warning-label": "#c05600"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "margin-page": "48px",
+                        "stack-sm": "8px",
+                        "baseline": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-container font-body-md text-on-surface flex justify-center py-stack-lg min-h-screen">
+<!-- PDF Canvas (A4 Portrait Mockup) -->
+<div class="w-[794px] min-h-[1123px] bg-white shadow-xl flex flex-col relative overflow-hidden">
+<!-- Header Section -->
+<header class="bg-primary-container text-on-primary-container px-margin-page py-6 flex flex-col gap-4 relative">
+<div class="flex justify-between items-center">
+<!-- Brand Identity -->
+<div class="flex items-center gap-4">
+<img alt="Logo Safran" class="h-[45px] object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT7Lx-zIcLb3GbyYrHIXHYUwQME8eVvnJMieZH7kO6tz83ryLoVYlhemVBnJdOfQI0rG-pDs5xsNAG32v0ncISVXvcOoUqIuFZLKHe47BvQCgKx0aMCPLwrsZv-eg8JVHgN-Ts3y0Dpfhe-h_BIYcO8I6mnKD_0pvsQAdA2pwpixBNZ86pKr3i2lDjlykJCsIkm1Ax0_OxXaDFJc20RjZfMZtFgAnkGHna0mp2pxlkpCXZ2tF4XNg6StzU0exYLMWBuMBaYujAC6SZ"/>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-white font-bold tracking-tight">SAFRAN SMART TRACK</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider">SAFRAN SEATS TUNISIE</span>
+</div>
+</div>
+<!-- Metadata Info -->
+<div class="text-right flex flex-col gap-1 border-l border-on-primary-container/20 pl-4">
+<p class="font-label-sm text-label-sm opacity-80 text-white">
+                        Période: 01/05/2026 → 30/05/2026
+                    </p>
+<p class="font-label-sm text-label-sm opacity-80 text-white">
+                        Généré le: 30/05/2026
+                    </p>
+<p class="font-label-sm text-label-sm font-bold text-secondary-fixed">
+                        Rapport N°: KPI-2026-015
+                    </p>
+</div>
+</div>
+<!-- Title Highlight -->
+<div class="mt-4 pt-4 border-t border-on-primary-container/10 flex justify-center">
+<h1 class="font-headline-xl text-headline-xl text-white uppercase tracking-wide">TAUX DE DISPONIBILITÉ</h1>
+</div>
+<!-- Decorative separating line -->
+<div class="absolute bottom-0 left-0 w-full h-1 bg-secondary-container"></div>
+</header>
+<!-- Filters Applied Bar -->
+<div class="bg-[#eff6ff] px-margin-page py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex gap-stack-lg items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg">filter_alt</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">FILTRES APPLIQUÉS :</span>
+</div>
+<div class="flex gap-4">
+<div class="flex gap-1 items-center bg-white/60 px-2 py-1 rounded border border-secondary/10">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Projet:</span>
+<span class="font-label-sm text-label-sm font-bold text-secondary">Tous</span>
+</div>
+<div class="flex gap-1 items-center bg-white/60 px-2 py-1 rounded border border-secondary/10">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Site:</span>
+<span class="font-label-sm text-label-sm font-bold text-secondary">Tous</span>
+</div>
+<div class="flex gap-1 items-center bg-white/60 px-2 py-1 rounded border border-secondary/10">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Période:</span>
+<span class="font-label-sm text-label-sm font-bold text-secondary">01/05/2026 → 30/05/2026</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-secondary transition-colors" title="Modifier les filtres">tune</span>
+</div>
+<!-- Main Content -->
+<main class="flex-grow px-margin-page py-stack-lg flex flex-col gap-stack-lg">
+<!-- KPI Cards Row -->
+<div class="grid grid-cols-3 gap-gutter">
+<!-- Taux Global -->
+<div class="bg-surface-container-lowest p-stack-md border border-outline-variant shadow-sm rounded-lg flex flex-col items-center justify-center gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Taux global de disponibilité</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-xl text-headline-xl text-success-label">87</span>
+<span class="font-headline-md text-headline-md text-success-label">%</span>
+</div>
+<div class="flex items-center gap-1 text-success-label/80">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="text-[10px] font-bold">+2.4% vs M-1</span>
+</div>
+</div>
+<!-- Outillages Perdus -->
+<div class="bg-surface-container-lowest p-stack-md border border-outline-variant shadow-sm rounded-lg flex flex-col items-center justify-center gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">Outillages perdus</span>
+<span class="font-headline-xl text-headline-xl text-error">12</span>
+<span class="text-[10px] font-bold text-error/60 bg-error/5 px-2 py-0.5 rounded-full">Alerte Critique</span>
+</div>
+<!-- En Maintenance -->
+<div class="bg-surface-container-lowest p-stack-md border border-outline-variant shadow-sm rounded-lg flex flex-col items-center justify-center gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase">En maintenance</span>
+<span class="font-headline-xl text-headline-xl text-warning-label">31</span>
+<span class="text-[10px] font-bold text-warning-label/60 bg-warning-label/5 px-2 py-0.5 rounded-full">Planifiées &amp; Correctives</span>
+</div>
+</div>
+<!-- Visualization Section -->
+<div class="grid grid-cols-12 gap-gutter flex-grow">
+<!-- Donut Chart Block -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-lowest border border-outline-variant p-stack-lg flex flex-col gap-4">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">pie_chart</span>
+                        Répartition du Parc d'Outillage
+                    </h3>
+<div class="flex items-center justify-between h-full pt-4">
+<!-- Chart -->
+<div class="donut-container flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#f1f3f5" stroke-width="3"></circle>
+<!-- Segments -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#1a8a3d" stroke-dasharray="50 50" stroke-dashoffset="0" stroke-width="3.5"></circle> <!-- En Production 50% -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#0058be" stroke-dasharray="29 71" stroke-dashoffset="-50" stroke-width="3.5"></circle> <!-- Disponible 29% -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#c05600" stroke-dasharray="13 87" stroke-dashoffset="-79" stroke-width="3.5"></circle> <!-- Maintenance 13% -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#ba1a1a" stroke-dasharray="5 95" stroke-dashoffset="-92" stroke-width="3.5"></circle> <!-- Perdu 5% -->
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#45464d" stroke-dasharray="3 97" stroke-dashoffset="-97" stroke-width="3.5"></circle> <!-- HS 3% -->
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-xl text-headline-xl text-primary">87%</span>
+<span class="font-label-sm text-label-sm text-outline">Global</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex flex-col gap-3 pr-4">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-success-label"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm leading-tight">En production</span>
+<span class="text-xs text-outline">124 unités (50%)</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm leading-tight">Disponible</span>
+<span class="text-xs text-outline">71 unités (29%)</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-warning-label"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm leading-tight">En maintenance</span>
+<span class="text-xs text-outline">31 unités (13%)</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm leading-tight">Perdu</span>
+<span class="text-xs text-outline">12 unités (5%)</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-on-surface-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm leading-tight">Hors service</span>
+<span class="text-xs text-outline">9 unités (3%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bar Chart Block -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-lowest border border-outline-variant p-stack-lg flex flex-col gap-4">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">bar_chart</span>
+                        Disponibilité par Site
+                    </h3>
+<div class="flex flex-col gap-stack-lg justify-center h-full">
+<!-- CST -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm font-bold text-primary">CST</span>
+<span class="font-label-sm text-label-sm text-success-label">91%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-success-label rounded-full transition-all duration-700" style="width: 91%;"></div>
+</div>
+</div>
+<!-- TTR -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm font-bold text-primary">TTR</span>
+<span class="font-label-sm text-label-sm text-secondary">88%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full transition-all duration-700" style="width: 88%;"></div>
+</div>
+</div>
+<!-- T6 -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm font-bold text-primary">T6</span>
+<span class="font-label-sm text-label-sm text-warning-label">84%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-warning-label rounded-full transition-all duration-700" style="width: 84%;"></div>
+</div>
+</div>
+</div>
+<!-- Informative Box -->
+<div class="mt-auto bg-[#f8fafc] p-3 border-l-4 border-secondary text-on-surface-variant text-[11px] italic">
+                        Le site CST maintient une avance de 7% sur l'objectif annuel de disponibilité grâce à la mise en place du cycle de maintenance préventive renforcé.
+                    </div>
+</div>
+</div>
+<!-- Notes or Trends Section (Fills Space) -->
+<div class="bg-surface-container-low border-t border-outline-variant py-4 grid grid-cols-2 gap-8 items-start opacity-80">
+<div class="flex flex-col gap-2">
+<h4 class="font-label-sm text-label-sm font-bold text-primary uppercase border-b border-outline-variant pb-1">Observations</h4>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">
+                        • Augmentation notable des pertes sur le site T6 durant la semaine 20.<br/>
+                        • Le taux de disponibilité est resté stable malgré une augmentation de 5% de la charge de production globale.
+                    </p>
+</div>
+<div class="flex flex-col gap-2">
+<h4 class="font-label-sm text-label-sm font-bold text-primary uppercase border-b border-outline-variant pb-1">Actions Correctives</h4>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">
+                        • Lancement d'un audit inventaire sur le Site T6 pour localiser les 12 unités manquantes.<br/>
+                        • Priorisation de la maintenance pour les outillages critiques de la ligne de montage TTR.
+                    </p>
+</div>
+</div>
+</main>
+<!-- Footer Section -->
+<footer class="bg-white border-t border-outline-variant px-margin-page py-stack-md mt-auto flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-widest">SAFRAN SMART TRACK</span>
+<span class="text-[10px] text-outline">Taux de Disponibilité — Rapport Mensuel Mai 2026</span>
+</div>
+<div class="bg-surface-container px-3 py-1 rounded-full">
+<span class="font-label-sm text-label-sm text-primary">Page 1 / 1</span>
+</div>
+<div class="text-right flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase">Confidentiel — Usage interne uniquement</span>
+</div>
+</footer>
+<!-- Print Watermark (Background Texture) -->
+<div class="absolute inset-0 pointer-events-none opacity-[0.03] select-none flex flex-wrap gap-20 overflow-hidden -rotate-45 items-center justify-center">
+<span class="text-primary font-bold text-4xl whitespace-nowrap">SAFRAN CONFIDENTIEL</span>
+<span class="text-primary font-bold text-4xl whitespace-nowrap">SAFRAN CONFIDENTIEL</span>
+<span class="text-primary font-bold text-4xl whitespace-nowrap">SAFRAN CONFIDENTIEL</span>
+<span class="text-primary font-bold text-4xl whitespace-nowrap">SAFRAN CONFIDENTIEL</span>
+</div>
+</div>
+<!-- Interface Floating Actions (Not part of the report content) -->
+<div class="fixed right-8 bottom-8 no-print flex flex-col gap-4">
+<button class="bg-secondary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all" onclick="window.print()">
+<span class="material-symbols-outlined">print</span>
+</button>
+<button class="bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</button>
+</div>
+</body></html>
