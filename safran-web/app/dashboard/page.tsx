@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { AlertTriangle, ArrowLeftRight, Flame, Hammer, Wrench } from 'lucide-react';
+import { AlertTriangle, ArrowLeftRight, Bell, Flame, Hammer, Info, Wrench } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -42,9 +43,33 @@ function relativeDate(dateIso: string | null): string {
   }
 }
 
-function truncate(text: string, maxLength: number): string {
+function truncate(text: string | null, maxLength: number): string {
+  if (!text) return '';
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
+
+function getAlerteIconAndColor(type: string) {
+  switch (type) {
+    case 'critique':
+      return { Icon: AlertTriangle, color: 'text-red-500', bgColor: 'border-red-100' };
+    case 'avertissement':
+      return { Icon: Bell, color: 'text-orange-500', bgColor: 'border-orange-100' };
+    case 'information':
+      return { Icon: Info, color: 'text-blue-500', bgColor: 'border-blue-100' };
+    default:
+      return { Icon: Info, color: 'text-slate-500', bgColor: 'border-slate-100' };
+  }
+}
+
+type AlerteRow = {
+  id: string;
+  type: 'critique' | 'avertissement' | 'information';
+  titre: string;
+  description: string | null;
+  site: string | null;
+  created_at: string;
+  lu: boolean;
+};
 
 async function fetchAlertesForDashboard() {
   if (!isSupabaseConfigured) return { list: [], count: 0 };
@@ -52,7 +77,7 @@ async function fetchAlertesForDashboard() {
   const [listRes, countRes] = await Promise.all([
     supabase
       .from('alertes')
-      .select('id, type, titre, site, created_at, lu')
+      .select('id, type, titre, description, site, created_at, lu')
       .eq('lu', false)
       .order('created_at', { ascending: false })
       .limit(4),
@@ -86,6 +111,46 @@ export default function DashboardPage() {
     queryFn: fetchAlertesForDashboard
   });
 
+  // State for realtime alertes
+  const [realtimeAlertes, setRealtimeAlertes] = useState<AlerteRow[]>(
+    realAlertesQuery.data?.list || []
+  );
+  const [realtimeAlertesCount, setRealtimeAlertesCount] = useState<number>(
+    realAlertesQuery.data?.count || 0
+  );
+
+  // Update local state when query data changes
+  useEffect(() => {
+    if (realAlertesQuery.data) {
+      setRealtimeAlertes(realAlertesQuery.data.list);
+      setRealtimeAlertesCount(realAlertesQuery.data.count);
+    }
+  }, [realAlertesQuery.data]);
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    // Subscribe to inserts/updates/deletes on alertes table
+    const channel = supabase
+      .channel('dashboard-alertes-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'alertes' },
+        async () => {
+          // Refetch the data when any change occurs
+          const freshData = await fetchAlertesForDashboard();
+          setRealtimeAlertes(freshData.list);
+          setRealtimeAlertesCount(freshData.count);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const isLoading =
     statsQuery.isLoading ||
     enProductionQuery.isLoading ||
@@ -99,8 +164,6 @@ export default function DashboardPage() {
   const atelierPoints = ateliersQuery.data ?? [];
   const transfers = transfersQuery.data ?? [];
   const alertes = alertesQuery.data ?? [];
-  const realAlertes = realAlertesQuery.data?.list ?? [];
-  const realAlertesCount = realAlertesQuery.data?.count ?? 0;
   const etuvageItems = etuvageQuery.data ?? [];
   const isMagasinSite = isMagasin(siteFilter);
   
@@ -294,7 +357,7 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
               <AlertTriangle className="h-5 w-5 text-red-500" />
               <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>Alertes</h2>
-              <Badge variant="danger">{realAlertesCount}</Badge>
+              <Badge variant="danger">{realtimeAlertesCount}</Badge>
             </div>
             {realAlertesQuery.isLoading ? (
               <div className="space-y-3">
@@ -302,26 +365,30 @@ export default function DashboardPage() {
                   <div key={item} className="h-14 animate-pulse rounded-2xl bg-slate-100" />
                 ))}
               </div>
-            ) : realAlertes.length ? (
+            ) : realtimeAlertes.length ? (
               <ul className="space-y-3" style={{ flex: 1 }}>
-                {realAlertes.map((alerte: any) => (
-                  <li key={alerte.id} className="flex gap-3 rounded-2xl border border-red-100 p-3">
-                    <span className="mt-1">
-                      {alerte.type === 'critique' && <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />}
-                      {alerte.type === 'avertissement' && <div className="h-4 w-4 shrink-0 text-orange-500">🔔</div>}
-                      {alerte.type === 'information' && <div className="h-4 w-4 shrink-0 text-blue-500">ℹ️</div>}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800">
-                        {truncate(alerte.titre, 50)}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge className="shrink-0">{alerte.site || 'Tous'}</Badge>
-                        <span className="text-xs text-slate-500">{relativeDate(alerte.created_at)}</span>
+                {realtimeAlertes.map((alerte) => {
+                  const { Icon, color, bgColor } = getAlerteIconAndColor(alerte.type);
+                  return (
+                    <li key={alerte.id} className={`flex gap-3 rounded-2xl border ${bgColor} p-3`}>
+                      <Icon className={`mt-1 h-4 w-4 shrink-0 ${color}`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-slate-800">
+                          {truncate(alerte.titre, 50)}
+                        </p>
+                        {alerte.description && (
+                          <p className="mt-1 truncate text-xs text-slate-600">
+                            {truncate(alerte.description, 60)}
+                          </p>
+                        )}
+                        <div className="mt-1 flex items-center gap-2">
+                          <Badge className="shrink-0">{alerte.site || 'Tous'}</Badge>
+                          <span className="text-xs text-slate-500">{relativeDate(alerte.created_at)}</span>
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', background: '#f9fafb', borderRadius: '12px', fontSize: '14px', color: '#6b7280' }}>
@@ -572,32 +639,39 @@ export default function DashboardPage() {
           <Card>
             <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
               Alertes
-              <Badge variant="danger">{perdusQuery.data ?? 0}</Badge>
+              <Badge variant="danger">{realtimeAlertesCount}</Badge>
             </h2>
-            {alertesQuery.isLoading ? (
+            {realAlertesQuery.isLoading ? (
               <div className="space-y-3">
                 {[0, 1, 2, 3, 4].map((item) => (
                   <div key={item} className="h-14 animate-pulse rounded-2xl bg-slate-100" />
                 ))}
               </div>
-            ) : alertes.length ? (
+            ) : realtimeAlertes.length ? (
               <>
                 <ul className="space-y-3">
-                  {alertes.slice(0, 5).map((alerte) => (
-                    <li key={`${alerte.code}-${alerte.site}`} className="flex gap-3 rounded-2xl border border-red-100 p-3">
-                      <AlertTriangle className="mt-1 h-4 w-4 shrink-0 text-red-500" />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-slate-800">{alerte.code}</p>
-                            <p className="truncate text-sm text-slate-500">{alerte.designation}</p>
+                  {realtimeAlertes.map((alerte) => {
+                    const { Icon, color, bgColor } = getAlerteIconAndColor(alerte.type);
+                    return (
+                      <li key={alerte.id} className={`flex gap-3 rounded-2xl border ${bgColor} p-3`}>
+                        <Icon className={`mt-1 h-4 w-4 shrink-0 ${color}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-slate-800">
+                            {truncate(alerte.titre, 50)}
+                          </p>
+                          {alerte.description && (
+                            <p className="mt-1 truncate text-xs text-slate-600">
+                              {truncate(alerte.description, 60)}
+                            </p>
+                          )}
+                          <div className="mt-1 flex items-center gap-2">
+                            <Badge className="shrink-0">{alerte.site || 'Tous'}</Badge>
+                            <span className="text-xs text-slate-500">{relativeDate(alerte.created_at)}</span>
                           </div>
-                          <Badge className="shrink-0">{alerte.site}</Badge>
                         </div>
-                        <p className="mt-1 text-xs font-semibold text-red-500">Perdu</p>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             ) : (

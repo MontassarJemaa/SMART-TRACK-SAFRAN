@@ -55,6 +55,20 @@ export interface Outillage {
   date_service?: string; // ISO date string (YYYY-MM-DD)
 }
 
+export interface Alerte {
+  id: string;
+  type: 'critique' | 'avertissement' | 'information';
+  titre: string;
+  description: string | null;
+  site: string | null;
+  outillage_id: string | null;
+  lu: boolean;
+  lu_at: string | null;
+  created_at: string;
+  email_sent: boolean | null;
+  notified_at: string | null;
+}
+
 export interface ScanEntry {
   epc: string;
   rssi: number;

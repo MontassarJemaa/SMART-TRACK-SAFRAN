@@ -23,6 +23,8 @@ type AlerteRow = {
   lu: boolean;
   lu_at: string | null;
   created_at: string;
+  email_sent: boolean | null;
+  notified_at: string | null;
 };
 
 type OutillageRow = {
@@ -256,7 +258,7 @@ async function persistGeneratedAlertes(generated: GeneratedAlerte[]) {
 async function fetchPersistedAlertes(): Promise<AlerteRow[]> {
   const { data, error } = await supabase
     .from('alertes')
-    .select('id, type, titre, description, site, outillage_id, lu, lu_at, created_at')
+    .select('id, type, titre, description, site, outillage_id, lu, lu_at, created_at, email_sent, notified_at')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -289,6 +291,25 @@ async function markAllAlertesAsRead() {
   if (error) throw error;
 }
 
+async function resendEmail(alerteId: string) {
+  // First, reset email_sent and notified_at to false/null
+  const { error: resetError } = await supabase
+    .from('alertes')
+    .update({ email_sent: false, notified_at: null })
+    .eq('id', alerteId);
+
+  if (resetError) throw resetError;
+
+  // Call the Supabase Edge Function to resend the email
+  const { data, error: functionError } = await supabase.functions.invoke('send-alert-email', {
+    body: { alerteId }
+  });
+
+  if (functionError) throw functionError;
+  
+  return data;
+}
+
 export default function AlertesPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -314,6 +335,13 @@ export default function AlertesPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['alertes'] });
       await queryClient.invalidateQueries({ queryKey: ['alertes-unread-count'] });
+    }
+  });
+
+  const resendEmailMutation = useMutation({
+    mutationFn: resendEmail,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['alertes'] });
     }
   });
 
@@ -423,10 +451,36 @@ export default function AlertesPage() {
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 gap-2">
+                      <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        {/* Email Status Icon */}
+                        <div className="flex items-center gap-1">
+                          {alerte.email_sent ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          ) : alerte.email_sent === false ? (
+                            <AlertTriangle className="h-4 w-4 text-amber-600" />
+                          ) : (
+                            <Loader2 className="h-4 w-4 text-slate-400" />
+                          )}
+                          <span className="text-xs text-slate-500">
+                            {alerte.email_sent ? 'Email envoyé' : alerte.email_sent === false ? 'Email échoué' : 'En attente'}
+                          </span>
+                        </div>
+                        
                         <Button variant="outline" className="px-3" onClick={() => handleView(alerte)}>
                           Voir
                         </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          onClick={() => resendEmailMutation.mutate(alerte.id)}
+                          disabled={resendEmailMutation.isPending}
+                          className="px-3 py-1 text-xs"
+                        >
+                          {resendEmailMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : 'Renvoyer email'}
+                        </Button>
+                        
                         {!alerte.lu ? (
                           <button
                             onClick={() => markReadMutation.mutate(alerte.id)}
