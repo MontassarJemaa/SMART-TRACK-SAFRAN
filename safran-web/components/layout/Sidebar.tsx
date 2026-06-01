@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
@@ -11,11 +11,13 @@ import {
   BellRing,
   ClipboardList,
   LayoutDashboard,
+  LogOut,
   Settings,
   Wrench
 } from 'lucide-react';
 import { useAlertesUnreadCount } from '@/lib/useAlertesUnreadCount';
 import { alertPulse, sidebarItem, sidebarList } from '@/src/animations/variants';
+import { createClient } from '@/lib/supabase/client';
 
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon; showAlertBadge?: boolean }[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -34,9 +36,17 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: unreadAlertesCount = 0 } = useAlertesUnreadCount();
   const shouldReduceMotion = useReducedMotion();
   const motionVariants = (variants: unknown) => (shouldReduceMotion ? undefined : (variants as any));
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   return (
     <motion.aside
@@ -175,6 +185,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           );
         })}
       </motion.nav>
+
+      {/* Logout Button */}
+      <div className="px-2 pb-2">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-red-600 hover:text-white transition-colors"
+        >
+          <LogOut className="h-5 w-5 shrink-0" strokeWidth={2} />
+          {!collapsed && <span className="flex-1 truncate">Se déconnecter</span>}
+        </button>
+      </div>
 
       <div className="border-t border-white/10 px-3 py-3 text-[9px] text-white/60 text-center">
         {!collapsed ? (
