@@ -7,9 +7,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { LancerInventaireModal } from '@/components/ui/LancerInventaireModal';
+import { CanAccess } from '@/components/CanAccess';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const SITES = ['CST 1', 'CST 2', 'T6', 'TTR'] as const;
@@ -260,9 +261,9 @@ export default function InventairePage() {
       <PageHeader
         title="Inventaire & Campagnes"
         subtitle="Supervision des outillages par site"
-        actions={
+        actions={<CanAccess action={['inventaire:actions']} mode="disable">
           <Button onClick={() => setIsModalOpen(true)}>Lancer un inventaire</Button>
-        }
+        </CanAccess>}
       />
 
       {/* Site cards (clickable filters) */}

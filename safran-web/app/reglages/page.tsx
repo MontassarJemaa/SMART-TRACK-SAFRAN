@@ -1,5 +1,8 @@
 'use client';
 
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/lib/redux-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch } from '@/lib/redux-hooks';
 import { setSiteFilter } from '@/lib/store';
@@ -9,6 +12,8 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import useSettings from '@/lib/useSettings';
+import { CanAccess } from '@/components/CanAccess';
+import type { RootState } from '@/lib/store';
 import { getRoleColor, getRoleLabel, getRoleDotColor, getInitials, Role } from '@/lib/utils';
 
 const SITE_OPTIONS = ['Tous', 'CST 1', 'CST 2', 'T6', 'TTR'];
@@ -23,15 +28,36 @@ type UserWithEmail = Profile & {
   email: string;
 };
 
+const ROLE_COLORS: Record<string, string> = {
+  admin: 'bg-red-500 text-white',
+  maintenance: 'bg-orange-500 text-white',
+  superviseur: 'bg-blue-500 text-white',
+  magasin: 'bg-green-500 text-white'
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Administrateur',
+  maintenance: 'Maintenance',
+  superviseur: 'Superviseur',
+  magasin: 'Magasinier'
+};
+
+const ROLE_DOT_COLORS: Record<string, string> = {
+  admin: 'bg-red-500',
+  maintenance: 'bg-orange-500',
+  superviseur: 'bg-blue-500',
+  magasin: 'bg-green-500'
+};
+
 export default function ReglagesPage() {
   const { settings, updateSetting, resetSettings } = useSettings();
   const dispatch = useAppDispatch();
+  const { userId, email: authEmail, role: authRole, displayName: authDisplayName, loading: authLoading } = useAppSelector((state: RootState) => state.auth);
   const [toastMessage, setToastMessage] = useState('');
   const [supabaseOnline, setSupabaseOnline] = useState<boolean | null>(null);
-  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
-  const [currentEmail, setCurrentEmail] = useState<string>('');
   const [allUsers, setAllUsers] = useState<UserWithEmail[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasFetchedUsersRef = useRef(false);
   const supabase = createClient();
   
   // Add User Form State
@@ -73,7 +99,28 @@ export default function ReglagesPage() {
 
   useEffect(() => {
     async function init() {
+      // If still loading auth, wait
+      if (authLoading) {
+        setLoading(true);
+        return;
+      }
+      
+      // If we have auth data and not admin, don't need to load anything
+      if (authRole !== 'admin') {
+        setLoading(false);
+        return;
+      }
+      
+      // Only proceed if we haven't fetched users yet
+      if (hasFetchedUsersRef.current) {
+        setLoading(false);
+        return;
+      }
+      
+      // For admin users, proceed with loading
+      console.log('Starting init for admin...');
       setLoading(true);
+      
       if (!isSupabaseConfigured) {
         setSupabaseOnline(false);
         setLoading(false);
@@ -81,13 +128,17 @@ export default function ReglagesPage() {
       }
       
       try {
-        // Check Supabase connection
+        // Check Supabase connection (only for admin)
         const { error: outillagesError } = await supabase
           .from('outillages')
           .select('id')
           .limit(1);
         setSupabaseOnline(!outillagesError);
         
+        // Fetch all users from API for admin
+        console.log('Fetching users...');
+        await fetchUsers();
+        hasFetchedUsersRef.current = true;
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
@@ -125,7 +176,19 @@ export default function ReglagesPage() {
     }
     
     void init();
-  }, []);
+  }, [authLoading, authRole]);
+  
+  // Compute currentProfile from Redux auth state
+  const currentProfile = useMemo(() => {
+    if (!userId || !authDisplayName || !authRole) return null;
+    return {
+      user_id: userId,
+      nom: authDisplayName,
+      role: authRole as Profile['role']
+    };
+  }, [userId, authDisplayName, authRole]);
+  
+  const currentEmail = authEmail || '';
 
   const currentInitials = useMemo(() => {
     if (!currentProfile) return 'SS';
@@ -278,7 +341,7 @@ export default function ReglagesPage() {
         {/* Mon Profil Section */}
         <Card className="!p-6">
           <h2 className="text-lg font-semibold text-[#001F3F] mb-6">Mon Profil</h2>
-          {loading ? (
+          {loading || authLoading ? (
             <div className="animate-pulse space-y-4">
               <div className="h-16 w-16 rounded-full bg-gray-200" />
               <div className="h-4 w-48 bg-gray-200 rounded" />
@@ -309,7 +372,7 @@ export default function ReglagesPage() {
         </Card>
         
         {/* Ajouter un utilisateur (Admin Only) */}
-        {currentProfile?.role === 'admin' && (
+        <CanAccess role={['admin']} mode="hide">
           <Card className="!p-6">
             <h2 className="text-lg font-semibold text-[#001F3F] mb-6">Ajouter un utilisateur</h2>
             
@@ -363,10 +426,10 @@ export default function ReglagesPage() {
                   onChange={(e) => setAddRole(e.target.value as any)}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#001F3F] focus:border-[#001F3F] outline-none transition-all"
                 >
-                  <option value="admin">Admin</option>
+                  <option value="admin">Administrateur</option>
                   <option value="maintenance">Maintenance</option>
                   <option value="superviseur">Superviseur</option>
-                  <option value="magasin">Magasin</option>
+                  <option value="magasin">Magasinier</option>
                 </select>
               </div>
               
@@ -381,13 +444,13 @@ export default function ReglagesPage() {
               </div>
             </form>
           </Card>
-        )}
+        </CanAccess>
         
         {/* Gestion des utilisateurs (Admin Only) */}
-        {currentProfile?.role === 'admin' && (
+        <CanAccess role={['admin']} mode="hide">
           <Card className="!p-6">
             <h2 className="text-lg font-semibold text-[#001F3F] mb-6">Gestion des utilisateurs</h2>
-            {loading ? (
+            {loading || authLoading ? (
               <div className="space-y-4">
                 {[1,2,3].map(i => (
                   <div key={i} className="animate-pulse flex gap-4">
@@ -447,7 +510,7 @@ export default function ReglagesPage() {
               </div>
             )}
           </Card>
-        )}
+        </CanAccess>
         
         {/* Existing Cards */}
         <Card className="!p-4">
@@ -605,10 +668,10 @@ export default function ReglagesPage() {
                     onChange={(e) => setModalRole(e.target.value as any)}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#001F3F] focus:border-[#001F3F] outline-none transition-all"
                   >
-                    <option value="admin">Admin</option>
+                    <option value="admin">Administrateur</option>
                     <option value="maintenance">Maintenance</option>
                     <option value="superviseur">Superviseur</option>
-                    <option value="magasin">Magasin</option>
+                    <option value="magasin">Magasinier</option>
                   </select>
                 </div>
                 

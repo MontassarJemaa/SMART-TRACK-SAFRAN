@@ -42,11 +42,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const motionVariants = (variants: unknown) => (shouldReduceMotion ? undefined : (variants as any));
   const supabase = createClient();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
-  };
+  const handleLogout = () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  document.cookie.split(';').forEach(c => {
+    document.cookie = c.replace(/^\s+/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+  });
+  window.location.href = '/login';
+};
 
   return (
     <motion.aside

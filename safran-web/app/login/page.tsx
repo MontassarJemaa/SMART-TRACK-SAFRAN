@@ -3,11 +3,15 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/lib/redux-hooks';
+import { setAuthUser } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
 import { Lock, Mail } from 'lucide-react';
+import type { Role } from '@/types';
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const supabase = createClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +29,7 @@ export default function LoginPage() {
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -34,6 +38,38 @@ export default function LoginPage() {
       setError('Identifiants incorrects. Veuillez réessayer.');
       setLoading(false);
       return;
+    }
+
+    if (user) {
+      // Fetch profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id, nom, role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        dispatch(
+          setAuthUser({
+            userId: profile.user_id,
+            email: user.email || '',
+            role: profile.role as Role,
+            displayName: profile.nom
+          })
+        );
+      } else {
+        // Fallback
+        const fallbackNom =
+          user.email?.split('@')[0] || 'Utilisateur';
+        dispatch(
+          setAuthUser({
+            userId: user.id,
+            email: user.email || '',
+            role: 'superviseur',
+            displayName: fallbackNom
+          })
+        );
+      }
     }
 
     router.push('/dashboard');

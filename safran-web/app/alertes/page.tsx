@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { CanAccess } from '@/components/CanAccess';
 
 type AlerteType = 'critique' | 'avertissement' | 'information';
 
@@ -470,16 +471,18 @@ export default function AlertesPage() {
                           Voir
                         </Button>
                         
-                        <Button 
-                          variant="outline" 
-                          onClick={() => resendEmailMutation.mutate(alerte.id)}
-                          disabled={resendEmailMutation.isPending}
-                          className="px-3 py-1 text-xs"
-                        >
-                          {resendEmailMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : 'Renvoyer email'}
-                        </Button>
+                        <CanAccess action={['alertes:resend-email']} mode="disable">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => resendEmailMutation.mutate(alerte.id)}
+                            disabled={resendEmailMutation.isPending}
+                            className="px-3 py-1 text-xs"
+                          >
+                            {resendEmailMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : 'Renvoyer email'}
+                          </Button>
+                        </CanAccess>
                         
                         {!alerte.lu ? (
                           <button

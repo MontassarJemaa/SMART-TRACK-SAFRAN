@@ -135,10 +135,13 @@ export interface ScanHistory {
   scanned_at: string;
 }
 
+export type Role = 'admin' | 'maintenance' | 'superviseur' | 'magasin';
+
 export interface UserProfile {
   id: string;
   email: string;
   displayName: string;
+  role: Role;
   createdAt: number;
   lastLogin: number;
   preferences: UserPreferences;
