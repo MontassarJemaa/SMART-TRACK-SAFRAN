@@ -1,11 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/lib/redux-hooks';
-import { useEffect, useMemo, useState } from 'react';
-import { useAppDispatch } from '@/lib/redux-hooks';
-import { setSiteFilter } from '@/lib/store';
+import { useAppSelector } from '@/lib/redux-hooks';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -51,7 +47,6 @@ const ROLE_DOT_COLORS: Record<string, string> = {
 
 export default function ReglagesPage() {
   const { settings, updateSetting, resetSettings } = useSettings();
-  const dispatch = useAppDispatch();
   const { userId, email: authEmail, role: authRole, displayName: authDisplayName, loading: authLoading } = useAppSelector((state: RootState) => state.auth);
   const [toastMessage, setToastMessage] = useState('');
   const [supabaseOnline, setSupabaseOnline] = useState<boolean | null>(null);
@@ -146,27 +141,12 @@ export default function ReglagesPage() {
           return;
         }
         
-        setCurrentEmail(user.email || '');
-        
         // Fetch current user's profile
         const { data: currentProfileData } = await supabase.from('profiles').select('user_id, nom, role').eq('user_id', user.id).single();
         
-        if (currentProfileData) {
-          setCurrentProfile(currentProfileData as Profile);
-        } else {
-          // Fallback if no profile exists
-          setCurrentProfile({
-            user_id: user.id,
-            nom: user.email?.split('@')[0] || 'Utilisateur',
-            role: 'superviseur'
-          });
+        if (!currentProfileData) {
+          console.warn('No profile found for current user');
         }
-        
-        // If admin, fetch all users from API
-        if (currentProfileData?.role === 'admin') {
-          await fetchUsers();
-        }
-        
       } catch (err: any) {
         console.error("Error fetching data:", err);
         setSupabaseOnline(false);

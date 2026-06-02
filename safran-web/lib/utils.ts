@@ -41,22 +41,13 @@ export function getLatestScan(scans: ScanHistory[]) {
 }
 
 // Role utility functions
-const ROLE_LABELS: Record<string, string> = {
+export type Role = 'admin' | 'maintenance' | 'superviseur' | 'magasin';
+
+const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrateur',
   maintenance: 'Maintenance',
   superviseur: 'Superviseur',
   magasin: 'Magasinier'
-};
-
-const ROLE_COLORS: Record<string, string> = {
-// Role-related utilities
-export type Role = 'admin' | 'maintenance' | 'superviseur' | 'magasin';
-
-const ROLE_LABELS: Record<Role, string> = {
-  admin: 'Admin',
-  maintenance: 'Maintenance',
-  superviseur: 'Superviseur',
-  magasin: 'Magasin'
 };
 
 const ROLE_COLORS: Record<Role, string> = {
@@ -66,7 +57,6 @@ const ROLE_COLORS: Record<Role, string> = {
   magasin: 'bg-green-500 text-white'
 };
 
-const ROLE_DOT_COLORS: Record<string, string> = {
 const ROLE_DOT_COLORS: Record<Role, string> = {
   admin: 'bg-red-500',
   maintenance: 'bg-orange-500',
@@ -74,16 +64,6 @@ const ROLE_DOT_COLORS: Record<Role, string> = {
   magasin: 'bg-green-500'
 };
 
-export function getRoleLabel(role: string): string {
-  return ROLE_LABELS[role] || role;
-}
-
-export function getRoleColor(role: string): string {
-  return ROLE_COLORS[role] || 'bg-slate-500 text-white';
-}
-
-export function getRoleDotColor(role: string): string {
-  return ROLE_DOT_COLORS[role] || 'bg-slate-500';
 export function getRoleLabel(role: Role | string): string {
   return ROLE_LABELS[role as Role] || role;
 }
