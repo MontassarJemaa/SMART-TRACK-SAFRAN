@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="bg-surface" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#031427",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "surface-container": "#eceef1",
+                        "tertiary-container": "#19293d",
+                        "primary-fixed-dim": "#b9c6eb",
+                        "inverse-on-surface": "#eff1f4",
+                        "surface-bright": "#f7f9fc",
+                        "surface": "#f7f9fc",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fc",
+                        "surface-container-high": "#e6e8eb",
+                        "surface-tint": "#515e7e",
+                        "on-secondary-fixed": "#001a42",
+                        "on-primary-fixed-variant": "#3a4665",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "surface-dim": "#d8dadd",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-primary-fixed": "#0d1b37",
+                        "secondary": "#0058be",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-secondary-container": "#fefcff",
+                        "outline-variant": "#c5c6ce",
+                        "on-tertiary-container": "#8090a8",
+                        "inverse-surface": "#2d3133",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#828eb1",
+                        "surface-variant": "#e0e3e6",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b9c6eb",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e0e3e6",
+                        "secondary-container": "#2170e4",
+                        "primary-fixed": "#d9e2ff",
+                        "surface-container-low": "#f2f4f7",
+                        "on-surface": "#191c1e",
+                        "outline": "#75777e",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "primary-container": "#1a2744",
+                        "primary": "#04122e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "margin-page": "48px",
+                        "stack-sm": "8px",
+                        "baseline": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+            .a4-page { box-shadow: none; margin: 0; border: none; }
+        }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 0;
+            display: flex;
+            flex-col;
+            position: relative;
+        }
+        .zebra-striping tr:nth-child(even) {
+            background-color: #f2f4f7;
+        }
+        .material-symbols-outlined {
+            vertical-align: middle;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Document Container -->
+<div class="a4-page flex flex-col">
+<!-- HEADER -->
+<header class="bg-primary p-margin-page text-on-primary relative overflow-hidden">
+<!-- Background detail for industrial feel -->
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+<path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<div class="relative z-10 flex justify-between items-start border-b border-secondary-container pb-stack-lg">
+<div class="flex items-center gap-6">
+<img alt="Safran Logo" class="h-[45px] w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT7Lx-zIcLb3GbyYrHIXHYUwQME8eVvnJMieZH7kO6tz83ryLoVYlhemVBnJdOfQI0rG-pDs5xsNAG32v0ncISVXvcOoUqIuFZLKHe47BvQCgKx0aMCPLwrsZv-eg8JVHgN-Ts3y0Dpfhe-h_BIYcO8I6mnKD_0pvsQAdA2pwpixBNZ86pKr3i2lDjlykJCsIkm1Ax0_OxXaDFJc20RjZfMZtFgAnkGHna0mp2pxlkpCXZ2tF4XNg6StzU0exYLMWBuMBaYujAC6SZ"/>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg tracking-tight">SAFRAN SMART TRACK</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-widest">SAFRAN SEATS TUNISIE</span>
+</div>
+</div>
+<div class="text-center self-center">
+<h1 class="font-headline-xl text-headline-xl uppercase">HISTORIQUE DES TRANSFERTS</h1>
+</div>
+<div class="text-right flex flex-col gap-1">
+<div class="font-label-sm text-label-sm bg-primary-container px-3 py-1 rounded-lg">Période: 90 jours</div>
+<div class="font-label-sm text-label-sm opacity-80">Généré le: 30/05/2026</div>
+<div class="font-label-sm text-label-sm font-bold text-secondary-fixed">Rapport N°: TRF-2026-021</div>
+</div>
+</div>
+</header>
+<!-- CONTENT CANVAS -->
+<main class="px-margin-page py-stack-lg flex-grow flex flex-col gap-stack-lg">
+<!-- FILTERS BAR -->
+<div class="bg-[#eff6ff] rounded-lg px-gutter py-stack-md border border-secondary-fixed flex justify-between items-center">
+<div class="flex gap-stack-lg items-center">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase opacity-70">Site</span>
+<span class="font-body-md text-body-md font-semibold">Tous</span>
+</div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase opacity-70">Projet</span>
+<span class="font-body-md text-body-md font-semibold">NH90</span>
+</div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase opacity-70">Statut</span>
+<span class="font-body-md text-body-md font-semibold">Tous</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-body-md text-body-md">01/03/2026 → 30/05/2026</span>
+</div>
+</div>
+<!-- KPI CARDS -->
+<div class="grid grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant p-gutter rounded-lg shadow-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase block mb-2">Total transferts</span>
+<span class="font-headline-xl text-headline-xl text-primary">87</span>
+</div>
+<div class="bg-surface-container-lowest border-l-4 border-l-green-600 border border-outline-variant p-gutter rounded-lg shadow-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase block mb-2">Validés</span>
+<span class="font-headline-xl text-headline-xl text-green-700">71</span>
+</div>
+<div class="bg-surface-container-lowest border-l-4 border-l-orange-500 border border-outline-variant p-gutter rounded-lg shadow-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase block mb-2">En cours</span>
+<span class="font-headline-xl text-headline-xl text-orange-600">11</span>
+</div>
+<div class="bg-surface-container-lowest border-l-4 border-l-red-600 border border-outline-variant p-gutter rounded-lg shadow-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase block mb-2">Annulés</span>
+<span class="font-headline-xl text-headline-xl text-red-700">5</span>
+</div>
+</div>
+<!-- MAIN TABLE -->
+<div class="border border-outline-variant rounded-lg overflow-hidden flex-grow shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="bg-primary text-on-primary">
+<tr>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">N° transfert</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">Référence outillage</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">Désignation</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">De</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">Vers</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider">Projet</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider text-center">Statut</th>
+<th class="px-4 py-3 font-label-sm text-label-sm uppercase tracking-wider text-right">Date</th>
+</tr>
+</thead>
+<tbody class="zebra-striping font-body-md text-body-md divide-y divide-outline-variant">
+<tr>
+<td class="px-4 py-3 font-semibold">TRF-8821</td>
+<td class="px-4 py-3">OT-992-B</td>
+<td class="px-4 py-3">Gabarit Perçage S6</td>
+<td class="px-4 py-3">CST</td>
+<td class="px-4 py-3">T6</td>
+<td class="px-4 py-3 font-medium">NH90</td>
+<td class="px-4 py-3 text-center">
+<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold uppercase">✅ Validé</span>
+</td>
+<td class="px-4 py-3 text-right">29/05/2026</td>
+</tr>
+<tr>
+<td class="px-4 py-3 font-semibold">TRF-8819</td>
+<td class="px-4 py-3">OT-104-A</td>
+<td class="px-4 py-3">Pince Sertissage Hydraulique</td>
+<td class="px-4 py-3">MAG</td>
+<td class="px-4 py-3">CST</td>
+<td class="px-4 py-3 font-medium">A350</td>
+<td class="px-4 py-3 text-center">
+<span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded font-bold uppercase">⏳ En cours</span>
+</td>
+<td class="px-4 py-3 text-right">28/05/2026</td>
+</tr>
+<tr>
+<td class="px-4 py-3 font-semibold">TRF-8815</td>
+<td class="px-4 py-3">OT-771-C</td>
+<td class="px-4 py-3">Module de Test Avionique</td>
+<td class="px-4 py-3">T6</td>
+<td class="px-4 py-3">MAG</td>
+<td class="px-4 py-3 font-medium">NH90</td>
+<td class="px-4 py-3 text-center">
+<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold uppercase">✅ Validé</span>
+</td>
+<td class="px-4 py-3 text-right">27/05/2026</td>
+</tr>
+<tr>
+<td class="px-4 py-3 font-semibold">TRF-8804</td>
+<td class="px-4 py-3">OT-012-F</td>
+<td class="px-4 py-3">Clé Dynamométrique 120Nm</td>
+<td class="px-4 py-3">CST</td>
+<td class="px-4 py-3">T6</td>
+<td class="px-4 py-3 font-medium">F7X</td>
+<td class="px-4 py-3 text-center">
+<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-bold uppercase">❌ Annulé</span>
+</td>
+<td class="px-4 py-3 text-right">25/05/2026</td>
+</tr>
+<tr>
+<td class="px-4 py-3 font-semibold">TRF-8798</td>
+<td class="px-4 py-3">OT-554-D</td>
+<td class="px-4 py-3">Banc de Traction Composite</td>
+<td class="px-4 py-3">LABO</td>
+<td class="px-4 py-3">CST</td>
+<td class="px-4 py-3 font-medium">NH90</td>
+<td class="px-4 py-3 text-center">
+<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-bold uppercase">✅ Validé</span>
+</td>
+<td class="px-4 py-3 text-right">24/05/2026</td>
+</tr>
+<!-- Row Placeholder -->
+<tr class="h-24">
+<td class="text-center italic opacity-30 text-xs" colspan="8">[... Suite des transferts omise pour l'aperçu ...]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- SUMMARY SECTION -->
+<div class="grid grid-cols-3 gap-gutter mt-auto pt-stack-lg border-t border-outline-variant">
+<div class="flex flex-col gap-2">
+<h3 class="font-label-sm text-label-sm uppercase text-primary font-bold mb-1">Transferts par site</h3>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">CST → T6</span>
+<span class="font-body-md text-body-md font-bold text-secondary">34</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">MAG → CST</span>
+<span class="font-body-md text-body-md font-bold text-secondary">21</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">Autres Flux</span>
+<span class="font-body-md text-body-md font-bold text-secondary">32</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="font-label-sm text-label-sm uppercase text-primary font-bold mb-1">Transferts par projet</h3>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">NH90</span>
+<span class="font-body-md text-body-md font-bold text-secondary">42</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">A350 XWB</span>
+<span class="font-body-md text-body-md font-bold text-secondary">28</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-low p-2 rounded">
+<span class="font-label-sm text-label-sm">Dassault F7X</span>
+<span class="font-body-md text-body-md font-bold text-secondary">17</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-lg p-stack-lg">
+<span class="font-label-sm text-label-sm uppercase opacity-70 mb-2">Durée moyenne de transfert</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-secondary-fixed">2.3</span>
+<span class="font-headline-md text-headline-md">jours</span>
+</div>
+<div class="mt-4 w-full h-1 bg-on-primary-container rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-secondary-fixed"></div>
+</div>
+<span class="text-[10px] mt-2 opacity-60 italic text-center">Optimisation de 12% vs trimestre précédent</span>
+</div>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="bg-surface px-margin-page py-stack-md border-t border-outline-variant flex justify-between items-center text-outline">
+<div class="font-label-sm text-label-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">data_usage</span>
+                SAFRAN SMART TRACK — Historique des Transferts
+            </div>
+<div class="font-label-sm text-label-sm font-bold bg-surface-container px-4 py-1 rounded">
+                Page 1/4
+            </div>
+<div class="font-label-sm text-label-sm uppercase tracking-widest text-error font-bold flex items-center gap-2">
+<span class="material-symbols-outlined">lock</span>
+                Confidentiel — Usage interne uniquement
+            </div>
+</footer>
+<!-- Bottom Border Accent (Safran Blue) -->
+<div class="h-2 bg-secondary w-full"></div>
+</div>
+<!-- Print Action (Floating UI - Hidden in print) -->
+<div class="fixed bottom-10 right-10 no-print flex gap-4">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-2" onclick="window.print()">
+<span class="material-symbols-outlined">print</span>
+            Imprimer le Rapport
+        </button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+            Exporter PDF
+        </button>
+</div>
+</body></html>
