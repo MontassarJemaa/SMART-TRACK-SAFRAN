@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { StatutBadge } from '@/components/ui/StatutBadge';
 import { PhotoUpload } from '@/components/ui/PhotoUpload';
 import { TransfertModal } from '@/components/ui/TransfertModal';
+import { CanAccess } from '@/components/CanAccess';
 import { formatDateTime, formatRelativeScan } from '@/lib/format-date';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { DEMO_OUTILLAGES } from '@/lib/demo-data';
@@ -701,10 +702,12 @@ export default function OutillageDetailPage() {
               <span className="font-semibold text-safran-navy">{statutLabel(outillage.statut ?? statutCode)}</span>
             </p>
             <div className="flex flex-col gap-2">
-              <Button onClick={() => setTransfertOpen(true)} className="justify-center gap-2">
-                <ArrowLeftRight className="h-4 w-4" />
-                Déclarer un transfert
-              </Button>
+              <CanAccess action={['transferts:actions']} mode="disable">
+                <Button onClick={() => setTransfertOpen(true)} className="justify-center gap-2">
+                  <ArrowLeftRight className="h-4 w-4" />
+                  Déclarer un transfert
+                </Button>
+              </CanAccess>
               
               {statutActions.map((action) => {
                 const isEtuvage = action.target === 'en_etuvage';
@@ -712,15 +715,17 @@ export default function OutillageDetailPage() {
                 
                 return (
                   <div key={action.target} className="flex items-center gap-2">
-                    <Button
-                      variant="custom"
-                      className={STATUT_ACTION_BUTTON_CLASS[action.target]}
-                      onClick={() => void handleStatutChange(action.target, action.confirm)}
-                      disabled={updateStatut.isPending || isDisabled}
-                    >
-                      <StatutActionIcon statut={action.target} />
-                      {action.label}
-                    </Button>
+                    <CanAccess action={['outillages:actions']} mode="disable">
+                      <Button
+                        variant="custom"
+                        className={STATUT_ACTION_BUTTON_CLASS[action.target]}
+                        onClick={() => void handleStatutChange(action.target, action.confirm)}
+                        disabled={updateStatut.isPending || isDisabled}
+                      >
+                        <StatutActionIcon statut={action.target} />
+                        {action.label}
+                      </Button>
+                    </CanAccess>
                     {isDrapage && isEtuvage && isEndOfLife && (
                       <span className="text-xs text-red-600 font-semibold whitespace-nowrap">
                         Fin de vie
@@ -731,22 +736,24 @@ export default function OutillageDetailPage() {
               })}
 
               {isDrapage && isEndOfLife && (
-                <Button
-                  variant="custom"
-                  className="justify-center gap-2 border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
-                  onClick={() => {
-                    setConfirm({
-                      titre: 'Réinitialiser les cycles',
-                      message: 'Confirmer la réinitialisation des cycles (après remplacement de l\'outillage) ?',
-                      type: 'stock',
-                      onConfirm: async () => await resetCycles.mutateAsync()
-                    });
-                  }}
-                  disabled={resetCycles.isPending}
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Réinitialiser cycles
-                </Button>
+                <CanAccess action={['outillages:actions']} mode="disable">
+                  <Button
+                    variant="custom"
+                    className="justify-center gap-2 border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
+                    onClick={() => {
+                      setConfirm({
+                        titre: 'Réinitialiser les cycles',
+                        message: 'Confirmer la réinitialisation des cycles (après remplacement de l\'outillage) ?',
+                        type: 'stock',
+                        onConfirm: async () => await resetCycles.mutateAsync()
+                      });
+                    }}
+                    disabled={resetCycles.isPending}
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Réinitialiser cycles
+                  </Button>
+                </CanAccess>
               )}
             </div>
           </Card>

@@ -39,3 +39,37 @@ export function formatRssi(rssi: number) {
 export function getLatestScan(scans: ScanHistory[]) {
   return sortByDateDesc(scans)[0];
 }
+
+// Role utility functions
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Administrateur',
+  maintenance: 'Maintenance',
+  superviseur: 'Superviseur',
+  magasin: 'Magasinier'
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  admin: 'bg-red-500 text-white',
+  maintenance: 'bg-orange-500 text-white',
+  superviseur: 'bg-blue-500 text-white',
+  magasin: 'bg-green-500 text-white'
+};
+
+const ROLE_DOT_COLORS: Record<string, string> = {
+  admin: 'bg-red-500',
+  maintenance: 'bg-orange-500',
+  superviseur: 'bg-blue-500',
+  magasin: 'bg-green-500'
+};
+
+export function getRoleLabel(role: string): string {
+  return ROLE_LABELS[role] || role;
+}
+
+export function getRoleColor(role: string): string {
+  return ROLE_COLORS[role] || 'bg-slate-500 text-white';
+}
+
+export function getRoleDotColor(role: string): string {
+  return ROLE_DOT_COLORS[role] || 'bg-slate-500';
+}

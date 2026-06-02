@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { NouveauTransfertModal } from '@/components/ui/NouveauTransfertModal';
+import { CanAccess } from '@/components/CanAccess';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useRowsPerPage } from '@/lib/useSettings';
 
@@ -147,7 +148,9 @@ export default function TransfertsPage() {
       <PageHeader
         title="Transferts & Mouvements"
         subtitle="Suivi des déplacements d’outillages entre sites SAFRAN"
-        actions={<Button onClick={() => setIsModalOpen(true)}>Nouveau transfert</Button>}
+        actions={<CanAccess action={['transferts:actions']} mode="disable">
+          <Button onClick={() => setIsModalOpen(true)}>Nouveau transfert</Button>
+        </CanAccess>}
       />
 
       <Card className="overflow-hidden !p-0">
