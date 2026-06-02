@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch } from '@/lib/redux-hooks';
 import { setSiteFilter } from '@/lib/store';
@@ -10,38 +9,18 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import useSettings from '@/lib/useSettings';
+import { getRoleColor, getRoleLabel, getRoleDotColor, getInitials, Role } from '@/lib/utils';
 
 const SITE_OPTIONS = ['Tous', 'CST 1', 'CST 2', 'T6', 'TTR'];
 
 type Profile = {
   user_id: string;
   nom: string;
-  role: 'admin' | 'maintenance' | 'superviseur' | 'magasin';
+  role: Role;
 };
 
 type UserWithEmail = Profile & {
   email: string;
-};
-
-const ROLE_COLORS: Record<string, string> = {
-  admin: 'bg-red-500 text-white',
-  maintenance: 'bg-orange-500 text-white',
-  superviseur: 'bg-blue-500 text-white',
-  magasin: 'bg-green-500 text-white'
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: 'Admin',
-  maintenance: 'Maintenance',
-  superviseur: 'Superviseur',
-  magasin: 'Magasin'
-};
-
-const ROLE_DOT_COLORS: Record<string, string> = {
-  admin: 'bg-red-500',
-  maintenance: 'bg-orange-500',
-  superviseur: 'bg-blue-500',
-  magasin: 'bg-green-500'
 };
 
 export default function ReglagesPage() {
@@ -58,14 +37,14 @@ export default function ReglagesPage() {
   // Add User Form State
   const [addEmail, setAddEmail] = useState('');
   const [addPassword, setAddPassword] = useState('');
-  const [addRole, setAddRole] = useState<'admin' | 'maintenance' | 'superviseur' | 'magasin'>('superviseur');
+  const [addRole, setAddRole] = useState<Role>('superviseur');
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [addSuccess, setAddSuccess] = useState<string | null>(null);
   
   // Modal State
   const [selectedUser, setSelectedUser] = useState<UserWithEmail | null>(null);
-  const [modalRole, setModalRole] = useState<'admin' | 'maintenance' | 'superviseur' | 'magasin'>('magasin');
+  const [modalRole, setModalRole] = useState<Role>('magasin');
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -82,14 +61,9 @@ export default function ReglagesPage() {
   // Function to fetch all users
   const fetchUsers = async () => {
     try {
-      console.log('=== Calling /api/users/list ===');
       const response = await fetch('/api/users/list', { cache: 'no-store' });
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Full response data:', data);
-      console.log('Number of users returned:', data.users?.length);
       if (data.users) {
-        console.log('Setting users:', data.users);
         setAllUsers(data.users);
       }
     } catch (error) {
@@ -99,10 +73,8 @@ export default function ReglagesPage() {
 
   useEffect(() => {
     async function init() {
-      console.log('Starting init...');
       setLoading(true);
       if (!isSupabaseConfigured) {
-        console.log('Supabase not configured');
         setSupabaseOnline(false);
         setLoading(false);
         return;
@@ -118,7 +90,6 @@ export default function ReglagesPage() {
         
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        console.log('Current auth user:', user, 'Error:', userError);
         if (userError || !user) {
           setLoading(false);
           return;
@@ -128,7 +99,6 @@ export default function ReglagesPage() {
         
         // Fetch current user's profile
         const { data: currentProfileData } = await supabase.from('profiles').select('user_id, nom, role').eq('user_id', user.id).single();
-        console.log('Current profile:', currentProfileData);
         
         if (currentProfileData) {
           setCurrentProfile(currentProfileData as Profile);
@@ -142,9 +112,7 @@ export default function ReglagesPage() {
         }
         
         // If admin, fetch all users from API
-        console.log('Is admin:', currentProfileData?.role === 'admin');
         if (currentProfileData?.role === 'admin') {
-          console.log('Fetching users...');
           await fetchUsers();
         }
         
@@ -161,18 +129,8 @@ export default function ReglagesPage() {
 
   const currentInitials = useMemo(() => {
     if (!currentProfile) return 'SS';
-    const parts = currentProfile.nom.trim().split(/\s+/);
-    const a = parts[0]?.[0] ?? 'S';
-    const b = parts[1]?.[0] ?? '';
-    return (a + b).toUpperCase();
+    return getInitials(currentProfile.nom);
   }, [currentProfile]);
-  
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(/\s+/);
-    const a = parts[0]?.[0] ?? 'S';
-    const b = parts[1]?.[0] ?? '';
-    return (a + b).toUpperCase();
-  };
   
   const groupedUsers = useMemo(() => {
     const groups: Record<string, UserWithEmail[]> = {};
@@ -231,9 +189,6 @@ export default function ReglagesPage() {
   };
   
   const handleOpenModal = (user: UserWithEmail) => {
-    console.log('Selected user:', user);
-    console.log('User user_id:', user.user_id);
-    console.log('User email:', user.email);
     setSelectedUser(user);
     setModalRole(user.role);
     setModalError(null);
@@ -277,8 +232,6 @@ export default function ReglagesPage() {
   
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
-    console.log('handleDeleteUser called with:', selectedUser);
-    console.log('Sending user_id:', selectedUser.user_id);
     
     setModalLoading(true);
     setModalError(null);
@@ -290,9 +243,7 @@ export default function ReglagesPage() {
         body: JSON.stringify({ user_id: selectedUser.user_id })
       });
       
-      console.log('Delete response status:', res.status);
       const data = await res.json();
-      console.log('Delete response data:', data);
       
       if (!res.ok) throw new Error(data.error || 'Erreur inconnue');
       
@@ -336,7 +287,7 @@ export default function ReglagesPage() {
           ) : (
             <div className="flex items-start gap-6">
               <div className={`flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white ${
-                ROLE_COLORS[currentProfile?.role || 'magasin']
+                getRoleColor(currentProfile?.role || 'magasin')
               }`}>
                 {currentInitials}
               </div>
@@ -347,9 +298,9 @@ export default function ReglagesPage() {
                 <p className="text-slate-500 mt-1">{currentEmail}</p>
                 <div className="mt-3">
                   <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${
-                    ROLE_COLORS[currentProfile?.role || 'magasin']
+                    getRoleColor(currentProfile?.role || 'magasin')
                   }`}>
-                    {ROLE_LABELS[currentProfile?.role || 'magasin']}
+                    {getRoleLabel(currentProfile?.role || 'magasin')}
                   </span>
                 </div>
               </div>
@@ -457,9 +408,9 @@ export default function ReglagesPage() {
                     <div key={role}>
                       <h3 className="text-md font-semibold text-slate-700 mb-4 flex items-center gap-2">
                         <span className={`inline-block h-2 w-2 rounded-full ${
-                          ROLE_DOT_COLORS[role]
+                          getRoleDotColor(role)
                         }`} />
-                        {ROLE_LABELS[role]}
+                        {getRoleLabel(role)}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {usersInRole.map(user => (
@@ -470,7 +421,7 @@ export default function ReglagesPage() {
                             style={{ minWidth: "280px" }}
                           >
                             <div className={`flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shrink-0 ${
-                              ROLE_COLORS[user.role]
+                              getRoleColor(user.role)
                             }`}>
                               {getInitials(user.nom)}
                             </div>
@@ -478,9 +429,9 @@ export default function ReglagesPage() {
                               <div className="flex items-center justify-between gap-2">
                                 <p className="font-semibold text-slate-800">{user.nom}</p>
                                 <span className={`rounded-full px-2 py-1 text-xs font-semibold shrink-0 ${
-                                  ROLE_COLORS[user.role]
+                                  getRoleColor(user.role)
                                 }`}>
-                                  {ROLE_LABELS[user.role]}
+                                  {getRoleLabel(user.role)}
                                 </span>
                               </div>
                               <p className="text-sm text-slate-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ maxWidth: "100%" }}>
@@ -611,7 +562,7 @@ export default function ReglagesPage() {
             
             <div className="flex flex-col items-center mb-6">
               <div className={`flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white mb-3 ${
-                ROLE_COLORS[selectedUser.role]
+                getRoleColor(selectedUser.role)
               }`}>
                 {getInitials(selectedUser.nom)}
               </div>

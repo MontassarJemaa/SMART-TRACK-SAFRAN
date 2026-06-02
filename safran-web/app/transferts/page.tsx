@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { NouveauTransfertModal } from '@/components/ui/NouveauTransfertModal';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useRowsPerPage } from '@/lib/useSettings';
@@ -37,6 +38,35 @@ function formatDate(dateIso: string | null) {
     return new Date(dateIso).toLocaleString('fr-FR');
   } catch {
     return '—';
+  }
+}
+
+function mapStatus(statut: string | null): string {
+  switch (statut) {
+    case 'en_production':
+      return 'En production';
+    case 'en_maintenance':
+      return 'En maintenance';
+    case 'en_etuvage':
+      return 'En étuvage';
+    case 'perdu':
+      return 'Perdu';
+    default:
+      return statut || '—';
+  }
+}
+
+function getBadgeVariant(statut: string | null): 'success' | 'warning' | 'danger' | 'default' {
+  switch (statut) {
+    case 'en_production':
+      return 'success';
+    case 'en_maintenance':
+    case 'en_etuvage':
+      return 'warning';
+    case 'perdu':
+      return 'danger';
+    default:
+      return 'default';
   }
 }
 
@@ -150,13 +180,13 @@ export default function TransfertsPage() {
         actions={<Button onClick={() => setIsModalOpen(true)}>Nouveau transfert</Button>}
       />
 
-      <Card className="overflow-hidden !p-0">
+      <Card className="overflow-hidden !p-0 mt-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th
-                  className="px-4 py-3 cursor-pointer hover:text-slate-700"
+                  className="px-4 py-[14px] cursor-pointer hover:text-slate-700"
                   onClick={() => handleSort('modifiedAt')}
                 >
                   Date
@@ -164,9 +194,9 @@ export default function TransfertsPage() {
                     {sortCol !== 'modifiedAt' ? ' ↕' : sortDir === 'asc' ? ' ↑' : ' ↓'}
                   </span>
                 </th>
-                <th className="px-4 py-3">Outillage</th>
+                <th className="px-4 py-[14px]">Outillage</th>
                 <th
-                  className="px-4 py-3 cursor-pointer hover:text-slate-700"
+                  className="px-4 py-[14px] cursor-pointer hover:text-slate-700"
                   onClick={() => handleSort('siteDepart')}
                 >
                   De (site)
@@ -175,7 +205,7 @@ export default function TransfertsPage() {
                   </span>
                 </th>
                 <th
-                  className="px-4 py-3 cursor-pointer hover:text-slate-700"
+                  className="px-4 py-[14px] cursor-pointer hover:text-slate-700"
                   onClick={() => handleSort('siteArrivee')}
                 >
                   Vers (site)
@@ -184,7 +214,7 @@ export default function TransfertsPage() {
                   </span>
                 </th>
                 <th
-                  className="px-4 py-3 cursor-pointer hover:text-slate-700"
+                  className="px-4 py-[14px] cursor-pointer hover:text-slate-700"
                   onClick={() => handleSort('statut')}
                 >
                   Statut
@@ -198,25 +228,29 @@ export default function TransfertsPage() {
               {transfertsQuery.isLoading ? (
                 [...Array(6)].map((_, index) => (
                   <tr key={index} className="border-b border-slate-100">
-                    <td className="px-4 py-3" colSpan={5}>
-                      <div className="h-7 animate-pulse rounded-lg bg-slate-100" />
+                    <td className="px-4 py-[14px]" colSpan={5}>
+                      <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
                     </td>
                   </tr>
                 ))
               ) : visibleRows.length ? (
                 visibleRows.map((row) => (
-                  <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="px-4 py-3 text-slate-600">{formatDate(row.modifiedAt)}</td>
-                    <td className="px-4 py-3 font-medium text-slate-800">{row.codeOutillage}</td>
-                    <td className="px-4 py-3 text-slate-600">{row.siteDepart}</td>
-                    <td className="px-4 py-3 text-slate-600">{row.siteArrivee}</td>
-                    <td className="px-4 py-3 text-slate-600">{row.statut}</td>
+                  <tr key={row.id} className="border-b border-slate-100 hover:bg-safran-blue/5">
+                    <td className="px-4 py-[14px] text-slate-600">{formatDate(row.modifiedAt)}</td>
+                    <td className="px-4 py-[14px] font-medium text-slate-800">{row.codeOutillage}</td>
+                    <td className="px-4 py-[14px] text-slate-600">{row.siteDepart}</td>
+                    <td className="px-4 py-[14px] text-slate-600">{row.siteArrivee}</td>
+                    <td className="px-4 py-[14px]">
+                      <Badge variant={getBadgeVariant(row.statut)}>
+                        {mapStatus(row.statut)}
+                      </Badge>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-14">
-                    <div className="flex flex-col items-center justify-center gap-3 text-slate-500">
+                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-3">
                       <ArrowLeftRight className="h-9 w-9 text-safran-blue" />
                       <p className="text-sm font-semibold">Aucun transfert enregistré</p>
                     </div>

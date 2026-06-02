@@ -60,19 +60,19 @@ const RAPPORT_CARDS: { type: ReportType; icon: any; title: string; description: 
     type: 'inventaire',
     icon: ClipboardList,
     title: 'Inventaire par site',
-    description: 'État des présences par site CST, T6 et TTR — projets NH90 & H160.'
+    description: 'État des présences par site CST1, CST2, T6 et TTR projets et atelier'
   },
   {
     type: 'transfert',
     icon: TrendingUp,
     title: 'Historique des transferts',
-    description: 'Liste des transferts validés, en cours et annulés sur 90 jours.'
+    description: 'Liste des transferts validés, en cours et annulés'
   },
   {
     type: 'kpi',
     icon: BarChart2,
-    title: 'Taux de disponibilité',
-    description: 'KPI disponibilité outillages par atelier et projet Airbus.'
+    title: 'Répartition par statut',
+    description: 'Répartition par statut des outillages par atelier et projet'
   }
 ];
 

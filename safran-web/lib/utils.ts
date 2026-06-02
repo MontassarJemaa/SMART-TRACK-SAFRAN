@@ -39,3 +39,46 @@ export function formatRssi(rssi: number) {
 export function getLatestScan(scans: ScanHistory[]) {
   return sortByDateDesc(scans)[0];
 }
+
+// Role-related utilities
+export type Role = 'admin' | 'maintenance' | 'superviseur' | 'magasin';
+
+const ROLE_LABELS: Record<Role, string> = {
+  admin: 'Admin',
+  maintenance: 'Maintenance',
+  superviseur: 'Superviseur',
+  magasin: 'Magasin'
+};
+
+const ROLE_COLORS: Record<Role, string> = {
+  admin: 'bg-red-500 text-white',
+  maintenance: 'bg-orange-500 text-white',
+  superviseur: 'bg-blue-500 text-white',
+  magasin: 'bg-green-500 text-white'
+};
+
+const ROLE_DOT_COLORS: Record<Role, string> = {
+  admin: 'bg-red-500',
+  maintenance: 'bg-orange-500',
+  superviseur: 'bg-blue-500',
+  magasin: 'bg-green-500'
+};
+
+export function getRoleLabel(role: Role | string): string {
+  return ROLE_LABELS[role as Role] || role;
+}
+
+export function getRoleColor(role: Role | string): string {
+  return ROLE_COLORS[role as Role] || 'bg-slate-500 text-white';
+}
+
+export function getRoleDotColor(role: Role | string): string {
+  return ROLE_DOT_COLORS[role as Role] || 'bg-slate-500';
+}
+
+export function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const a = parts[0]?.[0] ?? 'S';
+  const b = parts[1]?.[0] ?? '';
+  return (a + b).toUpperCase();
+}
